@@ -201,18 +201,28 @@ class YoloAnnotation(object):
         This class represents each of the annotated objects in a Yolo annotation file
         """
         def __init__(self):
-            self.class_ = -1
-            self.xcenter = 0
-            self.ycenter = 0
-            self.width = 0
-            self.height = 0
+            self.class_ = None
+            self.xcenter = None
+            self.ycenter = None
+            self.width = None
+            self.height = None
 
         def __repr__(self):
-            return f"{self.class_} {self.xcenter} {self.ycenter} {self.ycenter} {self.width} {self.height}"
+            if all([self.__dict__.values()]):
+                return f"{self.class_} {self.xcenter} {self.ycenter} {self.ycenter} {self.width} {self.height}"
+            else:
+                return ""
 
         def parse(self, annotation):
-            self.class_, self.xcenter, self.ycenter, self.width, self.height = [float(x) for x in annotation.split(" ")]
-            self.class_ = int(self.class_)
+            if annotation:
+                self.class_, self.xcenter, self.ycenter, self.width, self.height = \
+                    [float(x) for x in annotation.strip().split(" ")]
+                #self.class_, self.xcenter, self.ycenter, self.width, self.height = [x for x in annotation.split(" ")]
+                self.class_ = int(self.class_)
+                #self.xcenter = float(self.xcenter)
+                #self.ycenter = float(self.ycenter)
+                #self.width = float(self.width)
+                #self.height = float(self.height)
             return self
 
     def __init__(self):
@@ -227,7 +237,8 @@ class YoloAnnotation(object):
 
     def parse(self, annotation_path):
         with open(annotation_path, "r") as file:
-            self.objects = [YoloAnnotation.YoloObject().parse(ann) for ann in file.readlines()]
+            file_lines = list(file.readlines())
+            self.objects = [YoloAnnotation.YoloObject().parse(ann) for ann in file_lines]
 
     def append(self, class_index, xcenter, ycenter, width, height):
         obj = YoloAnnotation.YoloObject()
@@ -262,8 +273,7 @@ if __name__ == '__main__':
     #print(classes)
     y = YoloAnnotation()
     y.parse(pickled_yolo)
-    print(y)
-    p.from_yolo(y, classes, image_for_pickled_yolo)
+    p.from_yolo(pickled_yolo, classes, image_for_pickled_yolo)
     print(p)
     p.overlay(image_for_pickled_yolo)
     #my_yolo, classes = p.to_yolo(classes)

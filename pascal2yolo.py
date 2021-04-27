@@ -51,7 +51,6 @@ if __name__ == '__main__':
     else:
         files.append(str(source))
 
-    print(files)
     class_path = Path(args.classes)
     for p in tqdm(files):
         output_path = class_path.parent.joinpath(f"{Path(p).stem}.txt")
